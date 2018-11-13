@@ -2901,6 +2901,11 @@ void Game::updateCamera(u32 busy_time, f32 dtime)
 
 		camera->toggleCameraMode();
 
+#ifdef HAVE_TOUCHSCREENGUI
+		if (g_touchscreengui)
+			g_touchscreengui->setCameraMode(camera->getCameraMode());
+#endif
+
 		// Make the player visible depending on camera mode.
 		playercao->updateMeshCulling();
 		playercao->setChildrenVisible(camera->getCameraMode() > CAMERA_MODE_FIRST);
@@ -3010,16 +3015,14 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud, bool show_debug)
 	shootline.end = shootline.start + camera_direction * BS * d;
 
 #ifdef HAVE_TOUCHSCREENGUI
-
-	if ((g_settings->getBool("touchtarget")) && (g_touchscreengui)) {
-		shootline = g_touchscreengui->getShootline();
-		// Scale shootline to the acual distance the player can reach
-		shootline.end = shootline.start
-			+ shootline.getVector().normalize() * BS * d;
-		shootline.start += intToFloat(camera_offset, BS);
-		shootline.end += intToFloat(camera_offset, BS);
-	}
-
+		if ((g_settings->getBool("touchtarget")) && (g_touchscreengui)) {
+			shootline = g_touchscreengui->getShootline();
+			// Scale shootline to the acual distance the player can reach
+			shootline.end = shootline.start
+				+ shootline.getVector().normalize() * BS * d;
+			shootline.start += intToFloat(camera_offset, BS);
+			shootline.end += intToFloat(camera_offset, BS);
+		}
 #endif
 
 	PointedThing pointed = updatePointedThing(shootline,
@@ -3869,7 +3872,10 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 			(camera->getCameraMode() != CAMERA_MODE_THIRD_FRONT));
 #ifdef HAVE_TOUCHSCREENGUI
 	try {
-		draw_crosshair = !g_settings->getBool("touchtarget");
+		draw_crosshair = !g_settings->getBool("touchtarget") ||
+				(g_settings->getBool("use_crosshair") &&
+				camera->getCameraMode() != CAMERA_MODE_THIRD_FRONT) ||
+				camera->getCameraMode() == CAMERA_MODE_THIRD;
 	} catch (SettingNotFoundException) {
 	}
 #endif
