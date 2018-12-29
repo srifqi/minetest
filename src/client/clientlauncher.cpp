@@ -105,7 +105,7 @@ bool ClientLauncher::run(GameParams &game_params, const Settings &cmd_args)
 	}
 
 	RenderingEngine::get_instance()->setupTopLevelWindow(PROJECT_NAME_C);
-	
+
 	/*
 		This changes the minimum allowed number of vertices in a VBO.
 		Default is 500.
@@ -248,6 +248,14 @@ bool ClientLauncher::run(GameParams &game_params, const Settings &cmd_args)
 				continue;
 			}
 
+			PlayerAccountMode accountmode2;
+			if (current_accountmode == "autoregister")
+				accountmode2 = ACCOUNT_AUTOREGISTER;
+			else if (current_accountmode == "login")
+				accountmode2 = ACCOUNT_LOGIN;
+			else if (current_accountmode == "register")
+				accountmode2 = ACCOUNT_REGISTER;
+
 			RenderingEngine::get_video_driver()->setTextureCreationFlag(
 					video::ETCF_CREATE_MIP_MAPS, g_settings->getBool("mip_map"));
 
@@ -265,6 +273,7 @@ bool ClientLauncher::run(GameParams &game_params, const Settings &cmd_args)
 				current_password,
 				current_address,
 				current_port,
+				accountmode2,
 				error_message,
 				chat_backend,
 				&reconnect_requested,
@@ -380,10 +389,11 @@ bool ClientLauncher::launch_game(std::string &error_message,
 {
 	// Initialize menu data
 	MainMenuData menudata;
-	menudata.address                         = address;
 	menudata.name                            = playername;
 	menudata.password                        = password;
+	menudata.address                         = address;
 	menudata.port                            = itos(game_params.socket_port);
+	menudata.accountmode                     = accountmode;
 	menudata.script_data.errormessage        = error_message;
 	menudata.script_data.reconnect_requested = reconnect_requested;
 
@@ -460,11 +470,13 @@ bool ClientLauncher::launch_game(std::string &error_message,
 
 	playername = menudata.name;
 	password = menudata.password;
+	accountmode = menudata.accountmode;
 
-	current_playername = playername;
-	current_password   = password;
-	current_address    = address;
-	current_port       = game_params.socket_port;
+	current_playername  = playername;
+	current_password    = password;
+	current_address     = address;
+	current_port        = game_params.socket_port;
+	current_accountmode = accountmode;
 
 	// If using simple singleplayer mode, override
 	if (simple_singleplayer_mode) {
@@ -473,6 +485,7 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		current_password = "";
 		current_address = "";
 		current_port = myrand_range(49152, 65535);
+		current_accountmode = "autoregister";
 	} else {
 		g_settings->set("name", playername);
 		if (!address.empty()) {

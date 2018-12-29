@@ -23,7 +23,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <cmath>
 #include "client/renderingengine.h"
 #include "camera.h"
-#include "client.h"
 #include "client/clientevent.h"
 #include "client/gameui.h"
 #include "client/inputhandler.h"
@@ -41,7 +40,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "filesys.h"
 #include "gettext.h"
 #include "gui/guiChatConsole.h"
-#include "gui/guiConfirmRegistration.h"
 #include "gui/guiFormSpecMenu.h"
 #include "gui/guiKeyChangeMenu.h"
 #include "gui/guiPasswordChange.h"
@@ -650,6 +648,7 @@ public:
 			// If address is "", local server is used and address is updated
 			std::string *address,
 			u16 port,
+			PlayerAccountMode accountmode,
 			std::string &error_message,
 			bool *reconnect,
 			ChatBackend *chat_backend,
@@ -673,13 +672,14 @@ protected:
 
 	// Client creation
 	bool createClient(const std::string &playername,
-			const std::string &password, std::string *address, u16 port);
+			const std::string &password, std::string *address, u16 port,
+			PlayerAccountMode accountmode);
 	bool initGui();
 
 	// Client connection
 	bool connectToServer(const std::string &playername,
 			const std::string &password, std::string *address, u16 port,
-			bool *connect_ok, bool *aborted);
+			PlayerAccountMode accountmode, bool *connect_ok, bool *aborted);
 	bool getServerContent(bool *aborted);
 
 	// Main loop
@@ -999,6 +999,7 @@ bool Game::startup(bool *kill,
 		const std::string &password,
 		std::string *address,     // can change if simple_singleplayer_mode
 		u16 port,
+		PlayerAccountMode accountmode,
 		std::string &error_message,
 		bool *reconnect,
 		ChatBackend *chat_backend,
@@ -1038,7 +1039,7 @@ bool Game::startup(bool *kill,
 	if (!init(map_dir, address, port, gamespec))
 		return false;
 
-	if (!createClient(playername, password, address, port))
+	if (!createClient(playername, password, address, port, accountmode))
 		return false;
 
 	RenderingEngine::initialize(client, hud);
@@ -1287,7 +1288,8 @@ bool Game::createSingleplayerServer(const std::string &map_dir,
 }
 
 bool Game::createClient(const std::string &playername,
-		const std::string &password, std::string *address, u16 port)
+		const std::string &password, std::string *address, u16 port,
+		PlayerAccountMode accountmode)
 {
 	showOverlayMessage(N_("Creating client..."), 0, 10);
 
@@ -1303,7 +1305,7 @@ bool Game::createClient(const std::string &playername,
 	}
 #endif
 	if (!connectToServer(playername, password, address, port,
-			&could_connect, &connect_aborted))
+			accountmode, &could_connect, &connect_aborted))
 		return false;
 
 	if (!could_connect) {
@@ -1436,7 +1438,8 @@ bool Game::initGui()
 
 bool Game::connectToServer(const std::string &playername,
 		const std::string &password, std::string *address, u16 port,
-		bool *connect_ok, bool *connection_aborted)
+		PlayerAccountMode accountmode, bool *connect_ok,
+		bool *connection_aborted)
 {
 	*connect_ok = false;	// Let's not be overly optimistic
 	*connection_aborted = false;
@@ -1475,7 +1478,7 @@ bool Game::connectToServer(const std::string &playername,
 	}
 
 	client = new Client(playername.c_str(), password, *address,
-			*draw_control, texture_src, shader_src,
+			accountmode, *draw_control, texture_src, shader_src,
 			itemdef_manager, nodedef_manager, sound, eventmgr,
 			connect_address.isIPv6(), m_game_ui.get());
 
@@ -1538,27 +1541,16 @@ bool Game::connectToServer(const std::string &playername,
 				break;
 			}
 
-			if (client->m_is_registration_confirmation_state) {
-				if (registration_confirmation_shown) {
-					// Keep drawing the GUI
-					RenderingEngine::draw_menu_scene(guienv, dtime, true);
-				} else {
-					registration_confirmation_shown = true;
-					(new GUIConfirmRegistration(guienv, guienv->getRootGUIElement(), -1,
-						   &g_menumgr, client, playername, password, *address, connection_aborted))->drop();
-				}
-			} else {
-				wait_time += dtime;
-				// Only time out if we aren't waiting for the server we started
-				if (!address->empty() && wait_time > 10) {
-					*error_message = "Connection timed out.";
-					errorstream << *error_message << std::endl;
-					break;
-				}
-
-				// Update status
-				showOverlayMessage(N_("Connecting to server..."), dtime, 20);
+			wait_time += dtime;
+			// Only time out if we aren't waiting for the server we started
+			if (!address->empty() && wait_time > 10) {
+				*error_message = "Connection timed out.";
+				errorstream << *error_message << std::endl;
+				break;
 			}
+
+			// Update status
+			showOverlayMessage(N_("Connecting to server..."), dtime, 20);
 		}
 	} catch (con::PeerNotFoundException &e) {
 		// TODO: Should something be done here? At least an info/error
@@ -4193,6 +4185,7 @@ void the_game(bool *kill,
 		const std::string &password,
 		const std::string &address,         // If empty local server is created
 		u16 port,
+		PlayerAccountMode accountmode,
 
 		std::string &error_message,
 		ChatBackend &chat_backend,
@@ -4211,9 +4204,9 @@ void the_game(bool *kill,
 	try {
 
 		if (game.startup(kill, random_input, input, map_dir,
-				playername, password, &server_address, port, error_message,
-				reconnect_requested, &chat_backend, gamespec,
-				simple_singleplayer_mode)) {
+				playername, password, &server_address, port, accountmode,
+				error_message, reconnect_requested, &chat_backend,
+				gamespec, simple_singleplayer_mode)) {
 			game.run();
 			game.shutdown();
 		}

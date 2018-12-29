@@ -97,11 +97,27 @@ void Client::handleCommand_Hello(NetworkPacket* pkt)
 
 	// Authenticate using that method, or abort if there wasn't any method found
 	if (chosen_auth_mechanism != AUTH_MECHANISM_NONE) {
-		if (chosen_auth_mechanism == AUTH_MECHANISM_FIRST_SRP
-				&& !m_simple_singleplayer_mode) {
-			promptConfirmRegistration(chosen_auth_mechanism);
-		} else {
+		if (m_accountmode == ACCOUNT_AUTOREGISTER ||
+				m_simple_singleplayer_mode) {
 			startAuth(chosen_auth_mechanism);
+		} else {
+			if (chosen_auth_mechanism == AUTH_MECHANISM_FIRST_SRP) {
+				if (m_accountmode == ACCOUNT_LOGIN) {
+					m_chosen_auth_mech = AUTH_MECHANISM_NONE;
+					m_access_denied = true;
+					m_access_denied_reason = "User name is not found.";
+					m_con->Disconnect();
+				} else {
+					startAuth(chosen_auth_mechanism);
+				}
+			} else if (m_accountmode == ACCOUNT_REGISTER) {
+				m_chosen_auth_mech = AUTH_MECHANISM_NONE;
+				m_access_denied = true;
+				m_access_denied_reason = "User name already exist.";
+				m_con->Disconnect();
+			} else {
+				startAuth(chosen_auth_mechanism);
+			}
 		}
 	} else {
 		m_chosen_auth_mech = AUTH_MECHANISM_NONE;

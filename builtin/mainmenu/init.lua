@@ -39,6 +39,7 @@ dofile(menupath .. DIR_DELIM .. "pkgmgr.lua")
 dofile(menupath .. DIR_DELIM .. "textures.lua")
 
 dofile(menupath .. DIR_DELIM .. "dlg_config_world.lua")
+dofile(menupath .. DIR_DELIM .. "dlg_connect_server.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_settings_advanced.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_contentstore.lua")
 if menustyle ~= "simple" then

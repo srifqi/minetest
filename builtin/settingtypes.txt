@@ -902,6 +902,10 @@ enable_remote_media_server (Connect to external media server) bool true
 #    This support is experimental and API can change.
 enable_client_modding (Client modding) bool false
 
+#    Enable autoregister when connecting to server.
+#    This will change the way to connect to server in main menu.
+account_autoregister (Autoregister account) bool false
+
 #    URL to the server list displayed in the Multiplayer Tab.
 serverlist_url (Serverlist URL) string servers.minetest.net
 

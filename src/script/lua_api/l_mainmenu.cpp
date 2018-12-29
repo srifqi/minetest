@@ -118,17 +118,18 @@ int ModApiMainMenu::l_start(lua_State *L)
 
 	MainMenuData *data = engine->m_data;
 
-	data->selected_world = getIntegerData(L, "selected_world",valid) -1;
-	data->simple_singleplayer_mode = getBoolData(L,"singleplayer",valid);
+	data->selected_world = getIntegerData(L, "selected_world",valid) - 1;
+	data->simple_singleplayer_mode = getBoolData(L, "singleplayer", valid);
 	data->do_reconnect = getBoolData(L, "do_reconnect", valid);
 	if (!data->do_reconnect) {
-		data->name     = getTextData(L,"playername");
-		data->password = getTextData(L,"password");
-		data->address  = getTextData(L,"address");
-		data->port     = getTextData(L,"port");
+		data->name     = getTextData(L, "playername");
+		data->password = getTextData(L, "password");
+		data->address  = getTextData(L, "address");
+		data->port     = getTextData(L, "port");
 	}
-	data->serverdescription = getTextData(L,"serverdescription");
-	data->servername        = getTextData(L,"servername");
+	data->serverdescription = getTextData(L, "serverdescription");
+	data->servername        = getTextData(L, "servername");
+	data->accountmode       = getTextData(L, "accountmode");
 
 	//close menu next time
 	engine->m_startgame = true;

@@ -19,6 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #pragma once
 
+#include "client/client.h"
 #include "irrlichttypes_extrabloated.h"
 #include "client/inputhandler.h"
 #include "gameparams.h"
@@ -50,9 +51,10 @@ protected:
 	bool skip_main_menu = false;
 	bool use_freetype = false;
 	bool random_input = false;
-	std::string address = "";
 	std::string playername = "";
 	std::string password = "";
+	std::string address = "";
+	std::string accountmode = "";
 	InputHandler *input = nullptr;
 	MyEventReceiver *receiver = nullptr;
 	gui::IGUISkin *skin = nullptr;
@@ -66,5 +68,6 @@ protected:
 	std::string current_playername = "inv£lid";
 	std::string current_password = "";
 	std::string current_address = "does-not-exist";
+	std::string current_accountmode = "login";
 	int current_port = 0;
 };

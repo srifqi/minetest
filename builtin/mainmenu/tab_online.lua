@@ -16,6 +16,8 @@
 --51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 --------------------------------------------------------------------------------
+local auto_register = core.settings:get("account_autoregister") == "true"
+
 local function get_formspec(tabview, name, tabdata)
 	-- Update the cached supported proto info,
 	-- it may have changed after a change by the settings menu.
@@ -26,6 +28,8 @@ local function get_formspec(tabview, name, tabdata)
 	else
 		fav_selected = menudata.favorites[tabdata.fav_selected]
 	end
+
+	auto_register = core.settings:get("account_autoregister") == "true"
 
 	if not tabdata.search_for then
 		tabdata.search_for = ""
@@ -43,19 +47,29 @@ local function get_formspec(tabview, name, tabdata)
 		"field[8,0.65;3.25,0.5;te_address;;" ..
 			core.formspec_escape(core.settings:get("address")) .. "]" ..
 		"field[11.1,0.65;1.4,0.5;te_port;;" ..
-			core.formspec_escape(core.settings:get("remote_port")) .. "]" ..
+			core.formspec_escape(core.settings:get("remote_port")) .. "]"
 
-		-- Name / Password
-		"label[7.75,0.95;" .. fgettext("Name / Password") .. "]" ..
-		"field[8,1.85;2.9,0.5;te_name;;" ..
+	if auto_register then
+		retval = retval ..
+			-- Name / Password
+			"label[7.75,0.95;" .. fgettext("Name / Password") .. "]" ..
+			"field[8,1.85;2.9,0.5;te_name;;" ..
 			core.formspec_escape(core.settings:get("name")) .. "]" ..
-		"pwdfield[10.73,1.85;1.77,0.5;te_pwd;]" ..
+			"pwdfield[10.73,1.85;1.77,0.5;te_pwd;]" ..
 
-		-- Description Background
-		"box[7.73,2.25;4.25,2.6;#999999]"..
+			-- Description Background
+			"box[7.73,2.25;4.25,2.6;#999999]" ..
 
-		-- Connect
-		"button[9.88,4.9;2.3,1;btn_mp_connect;" .. fgettext("Connect") .. "]"
+			-- Connect
+			"button[9.88,4.9;2.3,1;btn_mp_connect;" .. fgettext("Connect") .. "]"
+	else
+		retval = retval ..
+			-- Description Background
+			"box[7.73,1.0;4.25,3.85;#999999]" ..
+
+			-- Choose Server
+			"button[9.88,4.9;2.3,1;btn_mp_choose;" .. fgettext("Choose Server") .. "]"
+	end
 
 	if tabdata.fav_selected and fav_selected then
 		if gamedata.fav then
@@ -63,8 +77,13 @@ local function get_formspec(tabview, name, tabdata)
 				fgettext("Del. Favorite") .. "]"
 		end
 		if fav_selected.description then
-			retval = retval .. "textarea[8.1,2.3;4.23,2.9;;;" ..
-				core.formspec_escape((gamedata.serverdescription or ""), true) .. "]"
+			if auto_register then
+				retval = retval .. "textarea[8.1,2.3;4.35,3.05;;;" ..
+					core.formspec_escape((gamedata.serverdescription or ""), true) .. "]"
+			else
+				retval = retval .. "textarea[8.1,1.05;4.35,4.45;;;" ..
+					core.formspec_escape((gamedata.serverdescription or ""), true) .. "]"
+			end
 		end
 	end
 
@@ -165,9 +184,17 @@ local function main_button_handler(tabview, fields, name, tabdata)
 				gamedata.serverdescription = fav.description
 
 				if gamedata.address and gamedata.port then
-					core.settings:set("address", gamedata.address)
-					core.settings:set("remote_port", gamedata.port)
-					core.start()
+					if auto_register then
+						gamedata.accountmode = "autoregister"
+						core.settings:set("address",     fields.te_address)
+						core.settings:set("remote_port", fields.te_port)
+						core.start()
+					else
+						local connect_server_dlg = create_connect_server_dlg()
+						connect_server_dlg:set_parent(tabview)
+						tabview:hide()
+						connect_server_dlg:show()
+					end
 				end
 			end
 			return true
@@ -308,7 +335,7 @@ local function main_button_handler(tabview, fields, name, tabdata)
 		return true
 	end
 
-	if (fields.btn_mp_connect or fields.key_enter)
+	if (fields.btn_mp_connect or fields.btn_mp_choose or fields.key_enter)
 			and fields.te_address ~= "" and fields.te_port then
 		gamedata.playername = fields.te_name
 		gamedata.password   = fields.te_pwd
@@ -335,11 +362,20 @@ local function main_button_handler(tabview, fields, name, tabdata)
 			gamedata.serverdescription = ""
 		end
 
-		core.settings:set("address",     fields.te_address)
-		core.settings:set("remote_port", fields.te_port)
-
-		core.start()
-		return true
+		if auto_register then
+			gamedata.accountmode = "autoregister"
+			core.settings:set("address",     fields.te_address)
+			core.settings:set("remote_port", fields.te_port)
+			core.start()
+			return true
+		else
+			gamedata.accountmode = "login" -- "Login" mode isn't destructive.
+			local connect_server_dlg = create_connect_server_dlg()
+			connect_server_dlg:set_parent(tabview)
+			tabview:hide()
+			connect_server_dlg:show()
+			return true
+		end
 	end
 	return false
 end

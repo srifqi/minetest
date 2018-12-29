@@ -68,6 +68,7 @@ Client::Client(
 		const char *playername,
 		const std::string &password,
 		const std::string &address_name,
+		PlayerAccountMode accountmode,
 		MapDrawControl &control,
 		IWritableTextureSource *tsrc,
 		IWritableShaderSource *shsrc,
@@ -96,6 +97,7 @@ Client::Client(
 	m_last_chat_message_sent(time(NULL)),
 	m_password(password),
 	m_chosen_auth_mech(AUTH_MECHANISM_NONE),
+	m_accountmode(accountmode),
 	m_media_downloader(new ClientMediaDownloader()),
 	m_state(LC_Created),
 	m_game_ui(game_ui),
@@ -327,10 +329,6 @@ void Client::step(float dtime)
 		initial_step = false;
 	}
 	else if(m_state == LC_Created) {
-		if (m_is_registration_confirmation_state) {
-			// Waiting confirmation
-			return;
-		}
 		float &counter = m_connection_reinit_timer;
 		counter -= dtime;
 		if(counter <= 0.0) {
@@ -982,18 +980,6 @@ void Client::sendInit(const std::string &playerName)
 	pkt << playerName;
 
 	Send(&pkt);
-}
-
-void Client::promptConfirmRegistration(AuthMechanism chosen_auth_mechanism)
-{
-	m_chosen_auth_mech = chosen_auth_mechanism;
-	m_is_registration_confirmation_state = true;
-}
-
-void Client::confirmRegistration()
-{
-	m_is_registration_confirmation_state = false;
-	startAuth(m_chosen_auth_mech);
 }
 
 void Client::startAuth(AuthMechanism chosen_auth_mechanism)

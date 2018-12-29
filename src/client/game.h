@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "irrlichttypes.h"
 #include <string>
+#include "client/client.h"
 
 class InputHandler;
 class ChatBackend;  /* to avoid having to include chat.h */
@@ -49,6 +50,7 @@ void the_game(bool *kill,
 		const std::string &password,
 		const std::string &address, // If "", local server is used
 		u16 port,
+		PlayerAccountMode accountmode,
 		std::string &error_message,
 		ChatBackend &chat_backend,
 		bool *reconnect_requested,

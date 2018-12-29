@@ -274,6 +274,7 @@ void set_default_settings(Settings *settings)
 	settings->setDefault("main_menu_style", "full");
 	settings->setDefault("main_menu_path", "");
 	settings->setDefault("serverlist_file", "favoriteservers.txt");
+	settings->setDefault("account_autoregister", "false");
 
 #if USE_FREETYPE
 	settings->setDefault("freetype", "true");

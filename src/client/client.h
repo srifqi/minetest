@@ -71,6 +71,12 @@ enum LocalClientState {
 	LC_Ready
 };
 
+enum PlayerAccountMode {
+	ACCOUNT_AUTOREGISTER,
+	ACCOUNT_LOGIN,
+	ACCOUNT_REGISTER
+};
+
 /*
 	Packet counter
 */
@@ -126,6 +132,7 @@ public:
 			const char *playername,
 			const std::string &password,
 			const std::string &address_name,
+			PlayerAccountMode accountmode,
 			MapDrawControl &control,
 			IWritableTextureSource *tsrc,
 			IWritableShaderSource *shsrc,
@@ -346,8 +353,6 @@ public:
 	{ return m_proto_ver; }
 
 	bool connectedToServer();
-	void confirmRegistration();
-	bool m_is_registration_confirmation_state = false;
 	bool m_simple_singleplayer_mode;
 
 	float mediaReceiveProgress();
@@ -462,7 +467,6 @@ private:
 	static AuthMechanism choseAuthMech(const u32 mechs);
 
 	void sendInit(const std::string &playerName);
-	void promptConfirmRegistration(AuthMechanism chosen_auth_mechanism);
 	void startAuth(AuthMechanism chosen_auth_mechanism);
 	void sendDeletedBlocks(std::vector<v3s16> &blocks);
 	void sendGotBlocks(v3s16 block);
@@ -537,7 +541,7 @@ private:
 	// Usable by auth mechanisms.
 	AuthMechanism m_chosen_auth_mech;
 	void *m_auth_data = nullptr;
-
+	PlayerAccountMode m_accountmode;
 
 	bool m_access_denied = false;
 	bool m_access_denied_reconnect = false;
