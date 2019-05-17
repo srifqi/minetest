@@ -385,6 +385,8 @@ public:
 	LocalClientState getState() { return m_state; }
 
 	void makeScreenshot();
+	void toggle360Video();
+	bool is360VideoMode() { return m_is_360_video_mode; }
 
 	inline void pushToChatQueue(ChatMessage *cec)
 	{
@@ -474,7 +476,6 @@ private:
 	NodeDefManager *m_nodedef;
 	ISoundManager *m_sound;
 	MtEventManager *m_event;
-
 
 	MeshUpdateThread m_mesh_update_thread;
 	ClientEnvironment m_env;
@@ -578,6 +579,8 @@ private:
 	MapDatabase *m_localdb = nullptr;
 	IntervalLimiter m_localdb_save_interval;
 	u16 m_cache_save_interval;
+
+	bool m_is_360_video_mode = false;
 
 	// Client modding
 	ClientScripting *m_script = nullptr;
