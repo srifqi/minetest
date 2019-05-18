@@ -224,7 +224,8 @@ void ClientMap::updateDrawList()
 
 			float d = 0.0;
 			if (!isBlockInSight(block->getPos(), camera_position,
-					camera_direction, camera_fov, range, &d))
+					camera_direction, camera_fov, range, &d) &&
+					!m_client->is360VideoMode())
 				continue;
 
 			blocks_in_range_with_mesh++;
@@ -312,7 +313,8 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 
 		float d = 0.0;
 		if (!isBlockInSight(block->getPos(), camera_position,
-				camera_direction, camera_fov, 100000 * BS, &d))
+				camera_direction, camera_fov, 100000 * BS, &d) &&
+				!m_client->is360VideoMode())
 			continue;
 
 		// Mesh animation
