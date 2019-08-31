@@ -1777,7 +1777,7 @@ void Server::SendHUDSetParam(session_t peer_id, u16 param, const std::string &va
 
 void Server::SendSetSky(session_t peer_id, const video::SColor &bgcolor,
 		const std::string &type, const std::vector<std::string> &params,
-		bool &clouds)
+		bool &clouds, bool &sun, bool &moon, bool &stars)
 {
 	NetworkPacket pkt(TOCLIENT_SET_SKY, 0, peer_id);
 	pkt << bgcolor << type << (u16) params.size();
@@ -1785,7 +1785,7 @@ void Server::SendSetSky(session_t peer_id, const video::SColor &bgcolor,
 	for (const std::string &param : params)
 		pkt << param;
 
-	pkt << clouds;
+	pkt << clouds << sun << moon << stars;
 
 	Send(&pkt);
 }
@@ -3260,11 +3260,11 @@ void Server::setPlayerEyeOffset(RemotePlayer *player, const v3f &first, const v3
 
 void Server::setSky(RemotePlayer *player, const video::SColor &bgcolor,
 	const std::string &type, const std::vector<std::string> &params,
-	bool &clouds)
+	bool &clouds, bool &sun, bool &moon, bool &stars)
 {
 	sanity_check(player);
-	player->setSky(bgcolor, type, params, clouds);
-	SendSetSky(player->getPeerId(), bgcolor, type, params, clouds);
+	player->setSky(bgcolor, type, params, clouds, sun, moon, stars);
+	SendSetSky(player->getPeerId(), bgcolor, type, params, clouds, sun, moon, stars);
 }
 
 void Server::setClouds(RemotePlayer *player, const CloudParams &params)

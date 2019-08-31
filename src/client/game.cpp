@@ -2725,6 +2725,10 @@ void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 	// Whether clouds are visible in front of a custom skybox
 	sky->setCloudsEnabled(event->set_sky.clouds);
 
+	sky->setSunEnabled(event->set_sky.sun);
+	sky->setMoonEnabled(event->set_sky.moon);
+	sky->setStarsEnabled(event->set_sky.stars);
+
 	if (skybox) {
 		skybox->remove();
 		skybox = NULL;

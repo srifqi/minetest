@@ -1233,8 +1233,14 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 		params->push_back(deSerializeString(is));
 
 	bool clouds = true;
+	bool sun = true;
+	bool moon = true;
+	bool stars = true;
 	try {
 		clouds = readU8(is);
+		sun = readU8(is);
+		moon = readU8(is);
+		stars = readU8(is);
 	} catch (...) {}
 
 	ClientEvent *event = new ClientEvent();
@@ -1243,6 +1249,9 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 	event->set_sky.type    = type;
 	event->set_sky.params  = params;
 	event->set_sky.clouds  = clouds;
+	event->set_sky.sun     = sun;
+	event->set_sky.moon    = moon;
+	event->set_sky.stars   = stars;
 	m_client_event_queue.push(event);
 }
 

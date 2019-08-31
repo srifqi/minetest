@@ -307,7 +307,7 @@ public:
 
 	void setSky(RemotePlayer *player, const video::SColor &bgcolor,
 			const std::string &type, const std::vector<std::string> &params,
-			bool &clouds);
+			bool &clouds, bool &sun, bool &moon, bool &stars);
 	void setClouds(RemotePlayer *player, const CloudParams &params);
 
 	bool overrideDayNightRatio(RemotePlayer *player, bool do_override, float brightness);
@@ -410,7 +410,7 @@ private:
 	void SendHUDSetParam(session_t peer_id, u16 param, const std::string &value);
 	void SendSetSky(session_t peer_id, const video::SColor &bgcolor,
 			const std::string &type, const std::vector<std::string> &params,
-			bool &clouds);
+			bool &clouds, bool &sun, bool &moon, bool &stars);
 	void SendCloudParams(session_t peer_id, const CloudParams &params);
 	void SendOverrideDayNightRatio(session_t peer_id, bool do_override, float ratio);
 	void broadcastModChannelMessage(const std::string &channel,

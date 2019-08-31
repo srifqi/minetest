@@ -1667,7 +1667,7 @@ int ObjectRef::l_hud_get_hotbar_selected_image(lua_State *L)
 	return 1;
 }
 
-// set_sky(self, bgcolor, type, list, clouds = true)
+// set_sky(self, bgcolor, type, list, clouds = true, sun = true, moon = true, stars = true)
 int ObjectRef::l_set_sky(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
@@ -1702,7 +1702,19 @@ int ObjectRef::l_set_sky(lua_State *L)
 	if (lua_isboolean(L, 5))
 		clouds = readParam<bool>(L, 5);
 
-	getServer(L)->setSky(player, bgcolor, type, params, clouds);
+	bool sun = true;
+	if (lua_isboolean(L, 6))
+		sun = readParam<bool>(L, 6);
+
+	bool moon = true;
+	if (lua_isboolean(L, 7))
+		moon = readParam<bool>(L, 7);
+
+	bool stars = true;
+	if (lua_isboolean(L, 8))
+		stars = readParam<bool>(L, 8);
+
+	getServer(L)->setSky(player, bgcolor, type, params, clouds, sun, moon, stars);
 	lua_pushboolean(L, true);
 	return 1;
 }
@@ -1718,9 +1730,9 @@ int ObjectRef::l_get_sky(lua_State *L)
 	video::SColor bgcolor(255, 255, 255, 255);
 	std::string type;
 	std::vector<std::string> params;
-	bool clouds;
+	bool clouds, sun, moon, stars;
 
-	player->getSky(&bgcolor, &type, &params, &clouds);
+	player->getSky(&bgcolor, &type, &params, &clouds, &sun, &moon, &stars);
 	type = type.empty() ? "regular" : type;
 
 	push_ARGB8(L, bgcolor);
@@ -1732,6 +1744,9 @@ int ObjectRef::l_get_sky(lua_State *L)
 		lua_rawseti(L, -2, i++);
 	}
 	lua_pushboolean(L, clouds);
+	lua_pushboolean(L, sun);
+	lua_pushboolean(L, moon);
+	lua_pushboolean(L, stars);
 	return 4;
 }
 

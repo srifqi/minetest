@@ -70,6 +70,9 @@ public:
 	void setVisible(bool visible) { m_visible = visible; }
 	// Set only from set_sky API
 	void setCloudsEnabled(bool clouds_enabled) { m_clouds_enabled = clouds_enabled; }
+	void setSunEnabled(bool sun_enabled) { m_sun_enabled = sun_enabled; }
+	void setMoonEnabled(bool moon_enabled) { m_moon_enabled = moon_enabled; }
+	void setStarsEnabled(bool stars_enabled) { m_stars_enabled = stars_enabled; }
 	void setFallbackBgColor(const video::SColor &fallback_bg_color)
 	{
 		m_fallback_bg_color = fallback_bg_color;
@@ -133,6 +136,9 @@ private:
 	float m_cloud_brightness = 0.5f;
 	bool m_clouds_visible; // Whether clouds are disabled due to player underground
 	bool m_clouds_enabled = true; // Initialised to true, reset only by set_sky API
+	bool m_sun_enabled = true; // Initialised to true, reset only by set_sky API
+	bool m_moon_enabled = true; // Initialised to true, reset only by set_sky API
+	bool m_stars_enabled = true; // Initialised to true, reset only by set_sky API
 	bool m_directional_colored_fog;
 	bool m_bodies_visible = true; // sun, moon, stars
 	video::SColorf m_bgcolor_bright_f = video::SColorf(1.0f, 1.0f, 1.0f, 1.0f);

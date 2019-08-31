@@ -152,6 +152,9 @@ struct ClientEvent
 			std::string *type;
 			std::vector<std::string> *params;
 			bool clouds;
+			bool sun;
+			bool moon;
+			bool stars;
 		} set_sky;
 		struct
 		{

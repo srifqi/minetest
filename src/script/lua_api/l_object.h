@@ -318,7 +318,7 @@ private:
 	// hud_get_hotbar_selected_image(self)
 	static int l_hud_get_hotbar_selected_image(lua_State *L);
 
-	// set_sky(self, bgcolor, type, list, clouds = true)
+	// set_sky(self, bgcolor, type, list, clouds = true, sun = true, moon = true, stars = true)
 	static int l_set_sky(lua_State *L);
 
 	// get_sky(self)

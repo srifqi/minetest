@@ -259,6 +259,8 @@ void Sky::render()
 
 		// Draw stars before sun and moon to be behind them
 		do {
+			if (!m_stars_enabled)
+				break;
 			driver->setMaterial(m_materials[1]);
 			// Tune values so that stars first appear just after the sun
 			// disappears over the horizon, and disappear just before the sun 
@@ -341,7 +343,7 @@ void Sky::render()
 		} while (false);
 
 		// Draw sunrise/sunset horizon glow texture (textures/base/pack/sunrisebg.png)
-		{
+		if (m_sun_enabled) {
 			driver->setMaterial(m_materials[2]);
 			float mid1 = 0.25;
 			float mid = wicked_time_of_day < 0.5 ? mid1 : (1.0 - mid1);
@@ -366,12 +368,12 @@ void Sky::render()
 		}
 
 		// Draw sun
-		if (wicked_time_of_day > 0.15 && wicked_time_of_day < 0.85) {
+		if (m_sun_enabled && wicked_time_of_day > 0.15 && wicked_time_of_day < 0.85) {
 			draw_sun(driver, sunsize, suncolor, suncolor2, wicked_time_of_day);
 		}
 
 		// Draw moon
-		if (wicked_time_of_day < 0.3 || wicked_time_of_day > 0.7) {
+		if (m_moon_enabled && (wicked_time_of_day < 0.3 || wicked_time_of_day > 0.7)) {
 			draw_moon(driver, moonsize, mooncolor, mooncolor2, wicked_time_of_day);
 		}
 
