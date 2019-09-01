@@ -680,17 +680,17 @@ void TouchScreenGUI::handleReleaseEvent(size_t evt_id)
 			auto *translated = new SEvent;
 			memset(translated, 0, sizeof(SEvent));
 			translated->EventType               = EET_MOUSE_INPUT_EVENT;
-			if (m_use_crosshair || m_camera_mode == CAMERA_MODE_THIRD) {
-				translated->MouseInput.X            = m_screensize.X / 2;
-				translated->MouseInput.Y            = m_screensize.Y / 2;
-			} else {
-				translated->MouseInput.X            = m_move_downlocation.X;
-				translated->MouseInput.Y            = m_move_downlocation.Y;
-			}
 			translated->MouseInput.Shift        = false;
 			translated->MouseInput.Control      = false;
 			translated->MouseInput.ButtonStates = 0;
 			translated->MouseInput.Event        = EMIE_LMOUSE_LEFT_UP;
+			if (m_use_crosshair || m_camera_mode == CAMERA_MODE_THIRD) {
+				translated->MouseInput.X = m_screensize.X / 2;
+				translated->MouseInput.Y = m_screensize.Y / 2;
+			} else {
+				translated->MouseInput.X = m_move_downlocation.X;
+				translated->MouseInput.Y = m_move_downlocation.Y;
+			}
 			m_receiver->OnEvent(*translated);
 			delete translated;
 		} else {
@@ -808,12 +808,11 @@ void TouchScreenGUI::translateEvent(const SEvent &event)
 					m_move_id                  = event.TouchInput.ID;
 					m_move_has_really_moved    = false;
 					m_move_downtime            = porting::getTimeMs();
-					if (m_use_crosshair || m_camera_mode == CAMERA_MODE_THIRD) {
-						m_move_downlocation = v2s32(m_screensize.X / 2, m_screensize.Y / 2);
-					} else {
-						m_move_downlocation = v2s32(event.TouchInput.X, event.TouchInput.Y);
-					}
 					m_move_sent_as_mouse_event = false;
+					if (m_use_crosshair || m_camera_mode == CAMERA_MODE_THIRD)
+						m_move_downlocation = v2s32(m_screensize.X / 2, m_screensize.Y / 2);
+					else
+						m_move_downlocation = v2s32(event.TouchInput.X, event.TouchInput.Y);
 				}
 			}
 		}
@@ -832,9 +831,9 @@ void TouchScreenGUI::translateEvent(const SEvent &event)
 			return;
 
 		if (m_move_id != -1) {
-			if ((event.TouchInput.ID == m_move_id) &&
-				(!m_move_sent_as_mouse_event || m_use_crosshair ||
-				m_camera_mode == CAMERA_MODE_THIRD)) {
+			if (event.TouchInput.ID == m_move_id &&
+					(!m_move_sent_as_mouse_event || m_use_crosshair ||
+					m_camera_mode == CAMERA_MODE_THIRD)) {
 
 				double distance = sqrt(
 						(m_pointerpos[event.TouchInput.ID].X - event.TouchInput.X) *
