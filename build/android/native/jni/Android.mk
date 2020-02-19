@@ -23,6 +23,11 @@ include $(PREBUILT_STATIC_LIBRARY)
 #include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
+LOCAL_MODULE := LuaJIT
+LOCAL_SRC_FILES := deps/Android/LuaJIT/${NDK_TOOLCHAIN_VERSION}/$(APP_ABI)/libluajit.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
 LOCAL_MODULE := OpenAL
 LOCAL_SRC_FILES := deps/Android/OpenAL-Soft/${NDK_TOOLCHAIN_VERSION}/$(APP_ABI)/libopenal.a
 include $(PREBUILT_STATIC_LIBRARY)
@@ -43,6 +48,7 @@ LOCAL_CFLAGS += \
 	-DUSE_SOUND=1                    \
 	-DUSE_FREETYPE=1                 \
 	-DUSE_LEVELDB=0                  \
+	-DUSE_LUAJIT=1                   \
 	-DVERSION_MAJOR=${versionMajor}  \
 	-DVERSION_MINOR=${versionMinor}  \
 	-DVERSION_PATCH=${versionPatch}  \
@@ -62,7 +68,6 @@ LOCAL_C_INCLUDES := \
 	../../../src                                     \
 	../../../src/script                              \
 	../../../lib/gmp                                 \
-	../../../lib/lua/src                             \
 	../../../lib/jsoncpp                             \
 	deps/Android/Curl/include                        \
 	deps/Android/Freetype/include                    \
@@ -70,6 +75,7 @@ LOCAL_C_INCLUDES := \
 	deps/Android/LevelDB/include                     \
 	deps/Android/libiconv/include                    \
 	deps/Android/libiconv/libcharset/include         \
+	deps/Android/LuaJIT/src                          \
 	deps/Android/OpenAL-Soft/include                 \
 	deps/Android/sqlite                              \
 	deps/Android/Vorbis/include
@@ -184,39 +190,6 @@ LOCAL_SRC_FILES += ../../../lib/gmp/mini-gmp.c
 # JSONCPP
 LOCAL_SRC_FILES += ../../../lib/jsoncpp/jsoncpp.cpp
 
-# Lua
-LOCAL_SRC_FILES += \
-	../../../lib/lua/src/lapi.c                      \
-	../../../lib/lua/src/lauxlib.c                   \
-	../../../lib/lua/src/lbaselib.c                  \
-	../../../lib/lua/src/lcode.c                     \
-	../../../lib/lua/src/ldblib.c                    \
-	../../../lib/lua/src/ldebug.c                    \
-	../../../lib/lua/src/ldo.c                       \
-	../../../lib/lua/src/ldump.c                     \
-	../../../lib/lua/src/lfunc.c                     \
-	../../../lib/lua/src/lgc.c                       \
-	../../../lib/lua/src/linit.c                     \
-	../../../lib/lua/src/liolib.c                    \
-	../../../lib/lua/src/llex.c                      \
-	../../../lib/lua/src/lmathlib.c                  \
-	../../../lib/lua/src/lmem.c                      \
-	../../../lib/lua/src/loadlib.c                   \
-	../../../lib/lua/src/lobject.c                   \
-	../../../lib/lua/src/lopcodes.c                  \
-	../../../lib/lua/src/loslib.c                    \
-	../../../lib/lua/src/lparser.c                   \
-	../../../lib/lua/src/lstate.c                    \
-	../../../lib/lua/src/lstring.c                   \
-	../../../lib/lua/src/lstrlib.c                   \
-	../../../lib/lua/src/ltable.c                    \
-	../../../lib/lua/src/ltablib.c                   \
-	../../../lib/lua/src/ltm.c                       \
-	../../../lib/lua/src/lundump.c                   \
-	../../../lib/lua/src/lvm.c                       \
-	../../../lib/lua/src/lzio.c                      \
-	../../../lib/lua/src/print.c
-
 # iconv
 LOCAL_SRC_FILES += \
 	deps/Android/libiconv/lib/iconv.c                \
@@ -225,7 +198,7 @@ LOCAL_SRC_FILES += \
 # SQLite3
 LOCAL_SRC_FILES += deps/Android/sqlite/sqlite3.c
 
-LOCAL_STATIC_LIBRARIES += Curl Freetype Irrlicht OpenAL Vorbis android_native_app_glue $(PROFILER_LIBS) #LevelDB
+LOCAL_STATIC_LIBRARIES += Curl Freetype Irrlicht OpenAL Vorbis LuaJIT android_native_app_glue $(PROFILER_LIBS) #LevelDB
 
 LOCAL_LDLIBS := -lEGL -lGLESv1_CM -lGLESv2 -landroid -lOpenSLES
 
