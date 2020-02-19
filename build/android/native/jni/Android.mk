@@ -4,32 +4,32 @@ LOCAL_PATH := $(call my-dir)/..
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := Curl
-LOCAL_SRC_FILES := deps/Android/Curl/${COMPILER_VERSION}/$(APP_ABI)/libcurl.a
+LOCAL_SRC_FILES := deps/Android/Curl/${NDK_TOOLCHAIN_VERSION}/$(APP_ABI)/libcurl.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := Freetype
-LOCAL_SRC_FILES := deps/Android/Freetype/${COMPILER_VERSION}/$(APP_ABI)/libfreetype.a
+LOCAL_SRC_FILES := deps/Android/Freetype/${NDK_TOOLCHAIN_VERSION}/$(APP_ABI)/libfreetype.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := Irrlicht
-LOCAL_SRC_FILES := deps/Android/Irrlicht/${COMPILER_VERSION}/$(APP_ABI)/libIrrlicht.a
+LOCAL_SRC_FILES := deps/Android/Irrlicht/${NDK_TOOLCHAIN_VERSION}/$(APP_ABI)/libIrrlicht.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 #include $(CLEAR_VARS)
 #LOCAL_MODULE := LevelDB
-#LOCAL_SRC_FILES := deps/Android/LevelDB/${COMPILER_VERSION}/$(APP_ABI)/libleveldb.a
+#LOCAL_SRC_FILES := deps/Android/LevelDB/${NDK_TOOLCHAIN_VERSION}/$(APP_ABI)/libleveldb.a
 #include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := OpenAL
-LOCAL_SRC_FILES := deps/Android/OpenAL-Soft/${COMPILER_VERSION}/$(APP_ABI)/libopenal.a
+LOCAL_SRC_FILES := deps/Android/OpenAL-Soft/${NDK_TOOLCHAIN_VERSION}/$(APP_ABI)/libopenal.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := Vorbis
-LOCAL_SRC_FILES := deps/Android/Vorbis/${COMPILER_VERSION}/$(APP_ABI)/libvorbis.a
+LOCAL_SRC_FILES := deps/Android/Vorbis/${NDK_TOOLCHAIN_VERSION}/$(APP_ABI)/libvorbis.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)

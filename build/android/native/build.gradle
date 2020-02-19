@@ -3,16 +3,13 @@ import org.ajoberstar.grgit.Grgit
 
 android {
 	compileSdkVersion 29
-	buildToolsVersion '29.0.2'
+	buildToolsVersion '29.0.3'
 	defaultConfig {
 		minSdkVersion 16
 		targetSdkVersion 29
 		externalNativeBuild {
 			ndkBuild {
-				arguments '-j10',
-						'APP_STL=c++_shared',
-						'COMPILER_VERSION=clang',
-						'APP_SHORT_COMMANDS=true',
+				arguments '-j8',
 						"versionMajor=${versionMajor}",
 						"versionMinor=${versionMinor}",
 						"versionPatch=${versionPatch}"

@@ -1,7 +1,8 @@
 APP_PLATFORM := ${APP_PLATFORM}
 APP_ABI := ${TARGET_ABI}
-APP_STL := ${APP_STL}
-NDK_TOOLCHAIN_VERSION := $(COMPILER_VERSION)
+APP_STL := c++_shared
+NDK_TOOLCHAIN_VERSION := clang
+APP_SHORT_COMMANDS := true
 APP_MODULES := Minetest
 
 APP_CPPFLAGS := -Ofast -fvisibility=hidden -fexceptions -Wno-deprecated-declarations -Wno-extra-tokens
@@ -19,7 +20,7 @@ APP_CPPFLAGS := -g -D_DEBUG -O0 -fno-omit-frame-pointer -fexceptions
 endif
 
 APP_CFLAGS   := $(APP_CPPFLAGS) -Wno-parentheses-equality #-Werror=shorten-64-to-32
-APP_CXXFLAGS := $(APP_CPPFLAGS) -frtti -std=gnu++14
+APP_CXXFLAGS := $(APP_CPPFLAGS) -frtti -std=gnu++17
 APP_LDFLAGS  := -Wl,--no-warn-mismatch,--gc-sections,--icf=safe
 
 ifeq ($(APP_ABI),arm64-v8a)

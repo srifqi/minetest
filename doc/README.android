@@ -49,8 +49,8 @@ following software packages. The version number in parenthesis denotes the
 version that was tested at the time this README was drafted; newer/older
 versions may or may not work.
 
-* Android SDK (29+)
-* Android NDK (r20b)
+* Android SDK 29
+* Android NDK r21
 * Android Studio 3 [optional]
 
 Additionally, you'll need to have an Internet connection available on the
@@ -76,6 +76,6 @@ automatically. Or you can create a `local.properties` file and specify
 
 * Once your keystore is setup, enter build/android subdirectory and create a new
   file "ant.properties" there. Add following lines to that file:
-  
+
   > key.store=<path to your keystore>
   > key.alias=Minetest
