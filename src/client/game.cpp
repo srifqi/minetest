@@ -1044,8 +1044,10 @@ bool Game::startup(bool *kill,
 	m_invert_mouse = g_settings->getBool("invert_mouse");
 	m_first_loop_after_window_activation = true;
 
+#ifdef HAVE_TOUCHSCREENGUI
 	m_android_touchtarget = g_settings->getBool("touchtarget");
 	m_android_use_crosshair = g_settings->getBool("use_crosshair");
+#endif
 
 	g_client_translations->clear();
 
