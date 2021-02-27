@@ -2,6 +2,36 @@ uniform sampler2D baseTexture;
 float width;
 float height;
 
+/* https://64.github.io/tonemapping/#uncharted-2
+	Hable's UC2 Tone mapping parameters
+	A = 0.22;
+	B = 0.30;
+	C = 0.10;
+	D = 0.20;
+	E = 0.01;
+	F = 0.30;
+	W = 11.2;
+	equation used:  ((x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F)) - E / F
+*/
+
+vec3 uncharted2Tonemap(vec3 x)
+{
+	return ((x * (0.22 * x + 0.03) + 0.002) / (x * (0.22 * x + 0.3) + 0.06)) - 0.03333;
+}
+
+vec4 applyToneMapping(vec4 color)
+{
+	color = vec4(pow(color.rgb, vec3(2.2)), color.a);
+	const float gamma = 1.6;
+	const float exposureBias = 5.5;
+	color.rgb = uncharted2Tonemap(exposureBias * color.rgb);
+	// Precalculated white_scale from
+	//vec3 whiteScale = 1.0 / uncharted2Tonemap(vec3(W));
+	vec3 whiteScale = vec3(1.036015346);
+	color.rgb *= whiteScale;
+	return vec4(pow(color.rgb, vec3(1.0 / gamma)), color.a);
+}
+
 /*
 void kernel(inout vec4 n[9], sampler2D tex, vec2 coord)
 {
@@ -25,6 +55,10 @@ void main(void)
 	// width = float(screen_size.x);
 	// height = float(screen_size.y);
 	vec2 screen = gl_TexCoord[0].st;
+	vec4 color = texture2D(baseTexture, screen);
+	if (screen.x < 0.5)
+		color = applyToneMapping(color);
+	gl_FragColor = color;
 
 	// https://lospec.com/palette-list/color-graphics-adapter
 	// Minetest, but running on CGA 16-colour palette
@@ -47,43 +81,43 @@ void main(void)
 	// palette[15] = vec3(255.0 / 255.0, 255.0 / 255.0,  85.0 / 255.0);
 
 	// https://lospec.com/palette-list/citrink
-	vec3[8] palette;
-	palette[0] = vec3(0xff / 255.0, 0xff / 255.0, 0xff / 255.0);
-	palette[1] = vec3(0xfc / 255.0, 0xf6 / 255.0, 0x60 / 255.0);
-	palette[2] = vec3(0xb2 / 255.0, 0xd9 / 255.0, 0x42 / 255.0);
-	palette[3] = vec3(0x52 / 255.0, 0xc3 / 255.0, 0x3f / 255.0);
-	palette[4] = vec3(0x16 / 255.0, 0x6e / 255.0, 0x7a / 255.0);
-	palette[5] = vec3(0x25 / 255.0, 0x4d / 255.0, 0x70 / 255.0);
-	palette[6] = vec3(0x25 / 255.0, 0x24 / 255.0, 0x46 / 255.0);
-	palette[7] = vec3(0x20 / 255.0, 0x15 / 255.0, 0x33 / 255.0);
+	// vec3[8] palette;
+	// palette[0] = vec3(0xff / 255.0, 0xff / 255.0, 0xff / 255.0);
+	// palette[1] = vec3(0xfc / 255.0, 0xf6 / 255.0, 0x60 / 255.0);
+	// palette[2] = vec3(0xb2 / 255.0, 0xd9 / 255.0, 0x42 / 255.0);
+	// palette[3] = vec3(0x52 / 255.0, 0xc3 / 255.0, 0x3f / 255.0);
+	// palette[4] = vec3(0x16 / 255.0, 0x6e / 255.0, 0x7a / 255.0);
+	// palette[5] = vec3(0x25 / 255.0, 0x4d / 255.0, 0x70 / 255.0);
+	// palette[6] = vec3(0x25 / 255.0, 0x24 / 255.0, 0x46 / 255.0);
+	// palette[7] = vec3(0x20 / 255.0, 0x15 / 255.0, 0x33 / 255.0);
 
 	// https://lospec.com/palette-list/paper-palette
 	// vec3[2] palette;
 	// palette[0] = vec3(0x3e / 255.0, 0x3e / 255.0, 0x3e / 255.0);
 	// palette[1] = vec3(0xf6 / 255.0, 0xe7 / 255.0, 0xc1 / 255.0);
 
-	vec3[4] dither;
-	dither[0] = vec3(0.0 / 4.0, 0.0 / 4.0, 0.0 / 4.0);
-	dither[1] = vec3(2.0 / 4.0, 2.0 / 4.0, 2.0 / 4.0);
-	dither[2] = vec3(3.0 / 4.0, 3.0 / 4.0, 3.0 / 4.0);
-	dither[3] = vec3(1.0 / 4.0, 1.0 / 4.0, 1.0 / 4.0);
+	// vec3[4] dither;
+	// dither[0] = vec3(0.0 / 4.0, 0.0 / 4.0, 0.0 / 4.0);
+	// dither[1] = vec3(2.0 / 4.0, 2.0 / 4.0, 2.0 / 4.0);
+	// dither[2] = vec3(3.0 / 4.0, 3.0 / 4.0, 3.0 / 4.0);
+	// dither[3] = vec3(1.0 / 4.0, 1.0 / 4.0, 1.0 / 4.0);
 
-	int bestIndex = 0;
-	float bestDist = 16777216.0;
-	vec4 baseColor = texture2D(baseTexture, screen);
-	ivec2 pixel_pos = ivec2(screen.x * 1280, screen.y * 720);
-	vec3 dither_colour = dither[int(mod(pixel_pos.x, 2)) + 2 * int(mod(pixel_pos.y, 2))];
-	dither_colour -= 0.5;
-	dither_colour /= 4.0;
-	baseColor.rgb += dither_colour;
-	for (int ii = 0; ii < 8; ii ++) {
-		float dist = distance(baseColor.rgb, palette[ii]);
-		if (dist < bestDist) {
-			bestIndex = ii;
-			bestDist = dist;
-		}
-	}
-	gl_FragColor = vec4(palette[bestIndex], 1.0);
+	// int bestIndex = 0;
+	// float bestDist = 16777216.0;
+	// vec4 baseColor = texture2D(baseTexture, screen);
+	// ivec2 pixel_pos = ivec2(screen.x * 1280, screen.y * 720);
+	// vec3 dither_colour = dither[int(mod(pixel_pos.x, 2)) + 2 * int(mod(pixel_pos.y, 2))];
+	// dither_colour -= 0.5;
+	// dither_colour /= 4.0;
+	// baseColor.rgb += dither_colour;
+	// for (int ii = 0; ii < 8; ii ++) {
+	// 	float dist = distance(baseColor.rgb, palette[ii]);
+	// 	if (dist < bestDist) {
+	// 		bestIndex = ii;
+	// 		bestDist = dist;
+	// 	}
+	// }
+	// gl_FragColor = vec4(palette[bestIndex], 1.0);
 
 	// vec4 n[9];
 	// kernel(n, baseTexture, screen);
