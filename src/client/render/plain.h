@@ -26,11 +26,14 @@ class RenderingCorePlain : public RenderingCore
 protected:
 	int scale = 0;
 	video::ITexture *lowres = nullptr;
+	video::ITexture *postprocess = nullptr;
+	video::SMaterial postprocessMat;
 
 	void initTextures() override;
 	void clearTextures() override;
 	void beforeDraw() override;
 	void upscale();
+	void applyPostProcess();
 
 public:
 	RenderingCorePlain(IrrlichtDevice *_device, Client *_client, Hud *_hud);

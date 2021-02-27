@@ -19,6 +19,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 */
 
 #include "plain.h"
+#include "client/client.h"
+#include "client/shader.h"
 #include "settings.h"
 
 inline u32 scaledown(u32 coef, u32 size)
@@ -31,19 +33,38 @@ RenderingCorePlain::RenderingCorePlain(
 	: RenderingCore(_device, _client, _hud)
 {
 	scale = g_settings->getU16("undersampling");
+
+	IWritableShaderSource *s = client->getShaderSource();
+	postprocessMat.UseMipMaps = false;
+	postprocessMat.ZBuffer = false;
+	postprocessMat.ZWriteEnable = false;
+	u32 shader = s->getShader("post_processing", TILE_MATERIAL_BASIC);
+	postprocessMat.MaterialType = s->getShaderInfo(shader).material;
+	postprocessMat.TextureLayer[0].AnisotropicFilter = false;
+	postprocessMat.TextureLayer[0].BilinearFilter = false;
+	postprocessMat.TextureLayer[0].TrilinearFilter = false;
+	postprocessMat.TextureLayer[0].TextureWrapU = video::ETC_CLAMP_TO_EDGE;
+	postprocessMat.TextureLayer[0].TextureWrapV = video::ETC_CLAMP_TO_EDGE;
 }
 
 void RenderingCorePlain::initTextures()
 {
-	if (scale <= 1)
-		return;
-	v2u32 size{scaledown(scale, screensize.X), scaledown(scale, screensize.Y)};
-	lowres = driver->addRenderTargetTexture(
-			size, "render_lowres", video::ECF_A8R8G8B8);
+	if (scale <= 1) {
+		postprocess = driver->addRenderTargetTexture(
+				screensize, "postprocess", video::ECF_A8R8G8B8);
+	} else {
+		v2u32 size{scaledown(scale, screensize.X), scaledown(scale, screensize.Y)};
+		lowres = driver->addRenderTargetTexture(
+				size, "render_lowres", video::ECF_A8R8G8B8);
+		postprocess = driver->addRenderTargetTexture(
+				size, "postprocess", video::ECF_A8R8G8B8);
+	}
+	postprocessMat.TextureLayer[0].Texture = postprocess;
 }
 
 void RenderingCorePlain::clearTextures()
 {
+	driver->removeTexture(postprocess);
 	if (scale <= 1)
 		return;
 	driver->removeTexture(lowres);
@@ -51,26 +72,47 @@ void RenderingCorePlain::clearTextures()
 
 void RenderingCorePlain::beforeDraw()
 {
-	if (scale <= 1)
-		return;
-	driver->setRenderTarget(lowres, true, true, skycolor);
+	driver->setRenderTarget(postprocess, true, true, skycolor);
 }
 
 void RenderingCorePlain::upscale()
 {
-	if (scale <= 1)
-		return;
-	driver->setRenderTarget(0, true, true);
+	driver->setRenderTarget(nullptr, false, false, skycolor);
 	v2u32 size{scaledown(scale, screensize.X), scaledown(scale, screensize.Y)};
 	v2u32 dest_size{scale * size.X, scale * size.Y};
 	driver->draw2DImage(lowres, core::rect<s32>(0, 0, dest_size.X, dest_size.Y),
 			core::rect<s32>(0, 0, size.X, size.Y));
 }
 
+void RenderingCorePlain::applyPostProcess()
+{
+	static const video::S3DVertex vertices[4] = {
+		video::S3DVertex(1.0, -1.0, 0.0, 0.0, 0.0, -1.0,
+				video::SColor(255, 0, 255, 255), 1.0, 0.0),
+		video::S3DVertex(-1.0, -1.0, 0.0, 0.0, 0.0, -1.0,
+				video::SColor(255, 255, 0, 255), 0.0, 0.0),
+		video::S3DVertex(-1.0, 1.0, 0.0, 0.0, 0.0, -1.0,
+				video::SColor(255, 255, 255, 0), 0.0, 1.0),
+		video::S3DVertex(1.0, 1.0, 0.0, 0.0, 0.0, -1.0,
+				video::SColor(255, 255, 255, 255), 1.0, 1.0),
+	};
+	static const u16 indices[6] = {0, 1, 2, 2, 3, 0};
+	driver->setMaterial(postprocessMat);
+	driver->drawVertexPrimitiveList(&vertices, 4, &indices, 2);
+	if (scale <= 1) {
+		driver->setRenderTarget(nullptr, false, false, skycolor);
+	} else {
+		driver->setRenderTarget(lowres, false, false, skycolor);
+	}
+	driver->draw2DImage(postprocess, v2s32(0, 0));
+}
+
 void RenderingCorePlain::drawAll()
 {
 	draw3D();
 	drawPostFx();
-	upscale();
+	applyPostProcess();
+	if (scale > 1)
+		upscale();
 	drawHUD();
 }
