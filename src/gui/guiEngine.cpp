@@ -237,14 +237,18 @@ void GUIEngine::run()
 	// needed based on the game selected
 	video::IVideoDriver *driver = m_rendering_engine->get_video_driver();
 
-	cloudInit();
+	bool night_main_menu = g_settings->getBool("night_main_menu");
+	cloudInit(night_main_menu);
 
 	unsigned int text_height = g_fontengine->getTextHeight();
 
 	irr::core::dimension2d<u32> previous_screen_size(g_settings->getU16("screen_w"),
 		g_settings->getU16("screen_h"));
 
-	static const video::SColor sky_color(255, 140, 186, 250);
+	static video::SColor sky_color = video::SColor(255, 140, 186, 250);
+	if (night_main_menu) {
+		sky_color = video::SColor(0, 0, 0, 0);
+	}
 
 	// Reset fog color
 	{
@@ -343,11 +347,15 @@ GUIEngine::~GUIEngine()
 }
 
 /******************************************************************************/
-void GUIEngine::cloudInit()
+void GUIEngine::cloudInit(bool night_main_menu)
 {
 	m_cloud.clouds = new Clouds(m_smgr, -1, rand());
 	m_cloud.clouds->setHeight(100.0f);
-	m_cloud.clouds->update(v3f(0, 0, 0), video::SColor(255,240,240,255));
+	if (night_main_menu) {
+		m_cloud.clouds->update(v3f(0, 0, 0), video::SColor(255, 11, 16, 38));
+	} else {
+		m_cloud.clouds->update(v3f(0, 0, 0), video::SColor(255, 240, 240, 255));
+	}
 
 	m_cloud.camera = m_smgr->addCameraSceneNode(0,
 				v3f(0,0,0), v3f(0, 60, 100));

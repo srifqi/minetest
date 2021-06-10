@@ -276,7 +276,7 @@ private:
 	EnrichedString m_toplefttext;
 
 	/** initialize cloud subsystem */
-	void cloudInit();
+	void cloudInit(bool night_main_menu);
 	/** do preprocessing for cloud subsystem */
 	void cloudPreProcess();
 	/** do postprocessing for cloud subsystem */
