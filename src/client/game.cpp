@@ -1004,6 +1004,8 @@ private:
 
 	bool m_does_lost_focus_pause_game = false;
 
+	bool m_night_main_menu = false;
+
 	// if true, (almost) the whole game is paused
 	// this happens in pause menu in singleplayer
 	bool m_is_paused = false;
@@ -1152,6 +1154,8 @@ bool Game::startup(bool *kill,
 #ifdef HAVE_TOUCHSCREENGUI
 	m_touch_use_crosshair = g_settings->getBool("touch_use_crosshair");
 #endif
+
+	m_night_main_menu = g_settings->getBool("night_main_menu");
 
 	g_client_translations->clear();
 
@@ -1734,13 +1738,13 @@ bool Game::getServerContent(bool *aborted)
 			const wchar_t *text = wgettext("Item definitions...");
 			progress = 25;
 			m_rendering_engine->draw_load_screen(text, guienv, texture_src,
-				dtime, progress);
+				dtime, progress, true, m_night_main_menu);
 			delete[] text;
 		} else if (!client->nodedefReceived()) {
 			const wchar_t *text = wgettext("Node definitions...");
 			progress = 30;
-			m_rendering_engine->draw_load_screen(text, guienv, texture_src,
-				dtime, progress);
+			m_rendering_engine->draw_load_screen(text, guienv, texture_src, dtime,
+					progress, true, m_night_main_menu);
 			delete[] text;
 		} else {
 			std::ostringstream message;
@@ -1767,7 +1771,7 @@ bool Game::getServerContent(bool *aborted)
 
 			progress = 30 + client->mediaReceiveProgress() * 35 + 0.5;
 			m_rendering_engine->draw_load_screen(utf8_to_wide(message.str()), guienv,
-				texture_src, dtime, progress);
+					texture_src, dtime, progress, true, m_night_main_menu);
 		}
 	}
 

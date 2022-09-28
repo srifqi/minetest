@@ -430,7 +430,7 @@ bool RenderingEngine::setXorgWindowIconFromPath(const std::string &icon_file)
 */
 void RenderingEngine::draw_load_screen(const std::wstring &text,
 		gui::IGUIEnvironment *guienv, ITextureSource *tsrc, float dtime,
-		int percent, bool clouds)
+		int percent, bool clouds, bool night)
 {
 	v2u32 screensize = getWindowSize();
 
@@ -444,10 +444,15 @@ void RenderingEngine::draw_load_screen(const std::wstring &text,
 
 	bool cloud_menu_background = clouds && g_settings->getBool("menu_clouds");
 	if (cloud_menu_background) {
+		if (night)
+			g_menuclouds->update(v3f(0, 0, 0), video::SColor(255, 11, 16, 38));
 		g_menuclouds->step(dtime * 3);
 		g_menuclouds->render();
-		get_video_driver()->beginScene(
-				true, true, video::SColor(255, 140, 186, 250));
+		video::SColor sky_color = video::SColor(255, 140, 186, 250);
+		if (night) {
+			sky_color = video::SColor(255, 0, 0, 0);
+		}
+		get_video_driver()->beginScene(true, true, sky_color);
 		g_menucloudsmgr->drawAll();
 	} else
 		get_video_driver()->beginScene(true, true, video::SColor(255, 0, 0, 0));
