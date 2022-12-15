@@ -27,9 +27,9 @@ StaticText::StaticText(const EnrichedString &text, bool border,
 			bool background)
 : IGUIStaticText(environment, parent, id, rectangle),
 	HAlign(EGUIA_UPPERLEFT), VAlign(EGUIA_UPPERLEFT),
-	Border(border), WordWrap(false), Background(background),
-	RestrainTextInside(true), RightToLeft(false),
-	OverrideFont(0), LastBreakFont(0)
+	Border(border), WordWrap(false), WordBreakAll(false),
+	Background(background), RestrainTextInside(true),
+	RightToLeft(false), OverrideFont(0), LastBreakFont(0)
 {
 	#ifdef _DEBUG
 	setDebugName("StaticText");
@@ -275,6 +275,21 @@ bool StaticText::isWordWrapEnabled() const
 }
 
 
+//! Enables or disables word break all for using the static text
+//! as multiline text control.
+void StaticText::setWordBreakAll(bool enable)
+{
+	WordBreakAll = enable;
+	updateText();
+}
+
+
+bool StaticText::isWordBreakAllEnabled() const
+{
+	return WordBreakAll;
+}
+
+
 void StaticText::setRightToLeft(bool rtl)
 {
 	if (RightToLeft != rtl)
@@ -385,7 +400,7 @@ void StaticText::updateText()
 							EnrichedString first = word.substr(0, where);
 							EnrichedString second = word.substr(where, word.size() - where);
 							first.addCharNoColor(L'-');
-							BrokenText.push_back(line + first);
+							breakText(line + first, font, elWidth);
 							const s32 secondLength = font->getDimension(second.c_str()).Width;
 
 							length = secondLength;
@@ -396,7 +411,7 @@ void StaticText::updateText()
 							// No soft hyphen found, so there's nothing more we can do
 							// break to next line
 							if (length)
-								BrokenText.push_back(line);
+								breakText(line, font, elWidth);
 							length = wordlgth;
 							line = word;
 						}
@@ -404,7 +419,7 @@ void StaticText::updateText()
 					else if (length && (length + wordlgth + whitelgth > elWidth))
 					{
 						// break to next line
-						BrokenText.push_back(line);
+						breakText(line, font, elWidth);
 						length = wordlgth;
 						line = word;
 					}
@@ -430,7 +445,7 @@ void StaticText::updateText()
 				{
 					line += whitespace;
 					line += word;
-					BrokenText.push_back(line);
+					breakText(line, font, elWidth);
 					line.clear();
 					word.clear();
 					whitespace.clear();
@@ -441,7 +456,7 @@ void StaticText::updateText()
 
 		line += whitespace;
 		line += word;
-		BrokenText.push_back(line);
+		breakText(line, font, elWidth);
 	}
 	else
 	{
@@ -479,7 +494,7 @@ void StaticText::updateText()
 					if (length && (length + wordlgth + whitelgth > elWidth))
 					{
 						// break to next line
-						BrokenText.push_back(line);
+						breakText(line, font, elWidth);
 						length = wordlgth;
 						line = word;
 					}
@@ -504,7 +519,7 @@ void StaticText::updateText()
 				{
 					line = whitespace + line;
 					line = word + line;
-					BrokenText.push_back(line);
+					breakText(line, font, elWidth);
 					line.clear();
 					word.clear();
 					whitespace.clear();
@@ -521,8 +536,30 @@ void StaticText::updateText()
 
 		line = whitespace + line;
 		line = word + line;
-		BrokenText.push_back(line);
+		breakText(line, font, elWidth);
 	}
+}
+
+
+//! Push a line with word break if necessary and enabled.
+void StaticText::breakText(const EnrichedString &input, const IGUIFont *font, s32 elWidth)
+{
+	EnrichedString line = input;
+	if (WordBreakAll) {
+		while (font->getDimension(line.c_str()).Width > elWidth) {
+			s32 pos = 0;
+			for (; pos < line.size(); pos++) {
+				u32 curW = font->getDimension(line.substr(0, pos).c_str()).Width;
+				if (curW > elWidth) {
+					pos--;
+					break;
+				}
+			}
+			BrokenText.push_back(line.substr(0, pos));
+			line = line.substr(pos, line.size() - pos);
+		}
+	}
+	BrokenText.push_back(line);
 }
 
 

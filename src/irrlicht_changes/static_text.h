@@ -160,6 +160,13 @@ namespace gui
 		//! Checks if word wrap is enabled
 		virtual bool isWordWrapEnabled() const;
 
+		//! Enables or disables word break all for using the static text
+		//! as multiline text control.
+		virtual void setWordBreakAll(bool enable);
+
+		//! Checks if word break all is enabled
+		virtual bool isWordBreakAllEnabled() const;
+
 		//! Sets the new caption of this element.
 		virtual void setText(const wchar_t* text);
 
@@ -198,9 +205,13 @@ namespace gui
 		//! Breaks the single text line.
 		void updateText();
 
+		//! Push a line with word break if necessary and enabled.
+		void breakText(const EnrichedString &line, const IGUIFont *font, s32 elWidth);
+
 		EGUI_ALIGNMENT HAlign, VAlign;
 		bool Border;
 		bool WordWrap;
+		bool WordBreakAll;
 		bool Background;
 		bool RestrainTextInside;
 		bool RightToLeft;
@@ -217,16 +228,30 @@ namespace gui
 
 } // end namespace irr
 
-inline void setStaticText(irr::gui::IGUIStaticText *static_text, const EnrichedString &text)
+inline void setStaticText(irr::gui::IGUIStaticText *static_text, const EnrichedString &text, const bool word_break_all)
 {
 	// dynamic_cast not possible due to some distributions shipped
 	// without rtti support in irrlicht
 	if (static_text->hasType(irr::gui::EGUIET_ENRICHED_STATIC_TEXT)) {
 		irr::gui::StaticText* stext = static_cast<irr::gui::StaticText*>(static_text);
+		if (word_break_all) {
+			stext->setWordWrap(true);
+			stext->setWordBreakAll(true);
+		}
 		stext->setText(text);
 	} else {
 		static_text->setText(text.c_str());
 	}
+}
+
+inline void setStaticText(irr::gui::IGUIStaticText *static_text, const wchar_t *text, const bool word_break_all)
+{
+	setStaticText(static_text, EnrichedString(text, static_text->getOverrideColor()), word_break_all);
+}
+
+inline void setStaticText(irr::gui::IGUIStaticText *static_text, const EnrichedString &text)
+{
+	setStaticText(static_text, text, false);
 }
 
 inline void setStaticText(irr::gui::IGUIStaticText *static_text, const wchar_t *text)

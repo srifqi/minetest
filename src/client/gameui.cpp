@@ -232,7 +232,7 @@ void GameUI::showTranslatedStatusText(const char *str)
 
 void GameUI::setChatText(const EnrichedString &chat_text, u32 recent_chat_count)
 {
-	setStaticText(m_guitext_chat, chat_text);
+	setStaticText(m_guitext_chat, chat_text, true);
 
 	m_recent_chat_count = recent_chat_count;
 }
