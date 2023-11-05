@@ -46,7 +46,7 @@ static const std::map<std::string, OverrideTarget> override_LUT = {
 	{ "*", OverrideTarget::ALL_FACES }
 };
 
-TextureOverrideSource::TextureOverrideSource(std::string filepath)
+TextureOverrideSource::TextureOverrideSource(const std::string &filepath)
 {
 	std::ifstream infile(filepath.c_str());
 	std::string line;

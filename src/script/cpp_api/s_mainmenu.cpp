@@ -38,7 +38,7 @@ void ScriptApiMainMenu::setMainMenuData(MainMenuDataForScript *data)
 	lua_pop(L, 1);
 }
 
-void ScriptApiMainMenu::handleMainMenuEvent(std::string text)
+void ScriptApiMainMenu::handleMainMenuEvent(const std::string &text)
 {
 	SCRIPTAPI_PRECHECKHEADER
 

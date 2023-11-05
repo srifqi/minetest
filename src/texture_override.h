@@ -72,7 +72,7 @@ struct TextureOverride
 class TextureOverrideSource
 {
 public:
-	TextureOverrideSource(std::string filepath);
+	TextureOverrideSource(const std::string &filepath);
 
 	//! Get all overrides that apply to item definitions
 	std::vector<TextureOverride> getItemTextureOverrides();

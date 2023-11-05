@@ -1320,7 +1320,7 @@ void GenericCAO::updateTexturePos()
 }
 
 // Do not pass by reference, see header.
-void GenericCAO::updateTextures(std::string mod)
+void GenericCAO::updateTextures(std::string mod) // NOLINT(performance-unnecessary-value-param)
 {
 	ITextureSource *tsrc = m_client->tsrc();
 
