@@ -350,6 +350,7 @@ protected:
 	ItemStack m_selected_swap;
 	ButtonEventType m_held_mouse_button = BET_OTHER;
 	bool m_shift_move_after_craft = false;
+	bool m_mouse_has_moved = false;
 
 	u16 m_left_drag_amount = 0;
 	ItemStack m_left_drag_stack;

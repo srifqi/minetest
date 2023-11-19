@@ -4459,7 +4459,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 			m_held_mouse_button = BET_OTHER;
 
 			if (m_selected_dragging && m_selected_item) {
-				if (s.isValid() && !identical && (empty || matching)) {
+				if (s.isValid() && m_mouse_has_moved && (empty || matching)) {
 					// Dragged to different slot: move all selected
 					move_amount = m_selected_amount;
 
@@ -4512,10 +4512,14 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 
 				m_left_drag_stacks.clear();
 			}
+
+			m_mouse_has_moved = false;
 			break;
 		}
 		case BET_MOVE: {
 			// Mouse button is down and mouse pointer entered a new inventory field
+
+			m_mouse_has_moved = true;
 
 			if (!s.isValid() || s.listname == "craftpreview")
 				break;
