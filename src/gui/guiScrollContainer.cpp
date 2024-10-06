@@ -67,6 +67,37 @@ void GUIScrollContainer::draw()
 	}
 }
 
+void GUIScrollContainer::setScrollFromVector(const v2s32 &vec) {
+	if (m_scrollbar == nullptr || !m_has_starting_vector)
+		return;
+
+	v2s32 dir = vec - m_starting_vector;
+	v2s32 pos = m_starting_upper_left_corner + dir;
+	s32 min = m_scrollbar->getMin() * m_scrollfactor;
+	s32 max = m_scrollbar->getMax() * m_scrollfactor;
+	core::rect<s32> rect = getRelativePosition();
+
+	if (m_orientation == VERTICAL) {
+		s32 amount = pos.Y;
+		if (amount > min)
+			amount = min;
+		else if (amount < max)
+			amount = max;
+		rect.UpperLeftCorner.Y = amount;
+		m_scrollbar->setPos(amount / m_scrollfactor);
+	} else if (m_orientation == HORIZONTAL) {
+		s32 amount = pos.X;
+		if (amount > min)
+			amount = min;
+		else if (amount < max)
+			amount = max;
+		rect.UpperLeftCorner.X = amount;
+		m_scrollbar->setPos(amount / m_scrollfactor);
+	}
+
+	setRelativePosition(rect);
+}
+
 void GUIScrollContainer::updateScrolling()
 {
 	s32 pos = m_scrollbar->getPos();

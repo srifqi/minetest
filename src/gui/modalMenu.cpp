@@ -26,6 +26,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "modalMenu.h"
 #include "gettext.h"
 #include "gui/guiInventoryList.h"
+#include "gui/guiScrollContainer.h"
 #include "porting.h"
 #include "settings.h"
 #include "touchcontrols.h"
@@ -334,6 +335,16 @@ bool GUIModalMenu::preprocessEvent(const SEvent &event)
 			m_pointer = v2s32(event.TouchInput.X, event.TouchInput.Y);
 
 			gui::IGUIElement *hovered = Environment->getRootGUIElement()->getElementFromPoint(core::position2d<s32>(m_pointer));
+			if (strcmp(hovered->getTypeName(), "GUIScrollContainer") == 0) {
+				GUIScrollContainer *scroll_container = (GUIScrollContainer *) hovered;
+				if (event.TouchInput.Event == ETIE_PRESSED_DOWN) {
+					scroll_container->setStartingVector(m_pointer);
+				} else if (event.TouchInput.Event == ETIE_MOVED) {
+					scroll_container->setScrollFromVector(m_pointer);
+				} else if (event.TouchInput.Event == ETIE_LEFT_UP) {
+					scroll_container->resetStartingVector();
+				}
+			}
 			if (event.TouchInput.Event == ETIE_PRESSED_DOWN)
 				Environment->setFocus(hovered);
 			if (m_touch_hovered != hovered) {

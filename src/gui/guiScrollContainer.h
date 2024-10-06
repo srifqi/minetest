@@ -46,6 +46,22 @@ public:
 		updateScrolling();
 	}
 
+	inline void resetStartingVector() {
+		m_has_starting_vector = false;
+	}
+
+	inline void setStartingVector(const v2s32 &vec) {
+		m_has_starting_vector = true;
+		m_starting_upper_left_corner = getRelativePosition().UpperLeftCorner;
+		m_starting_vector = vec;
+	}
+
+	void setScrollFromVector(const v2s32 &vec);
+
+	const c8 *getTypeName() const override {
+		return "GUIScrollContainer";
+	}
+
 private:
 	enum OrientationEnum
 	{
@@ -57,6 +73,10 @@ private:
 	GUIScrollBar *m_scrollbar;
 	OrientationEnum m_orientation;
 	f32 m_scrollfactor;
+
+	bool m_has_starting_vector = false;
+	v2s32 m_starting_upper_left_corner;
+	v2s32 m_starting_vector;
 
 	void updateScrolling();
 };
